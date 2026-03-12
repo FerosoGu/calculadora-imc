@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Andaimes</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        button:hover { background-color: #0056b3; }
+        #resultado { margin-top: 20px; padding: 15px; background: #e9f7ef; border-left: 5px solid #28a745; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Calculadora de Andaime</h2>
+
+    <div class="section">
+        <h3>Dimensões do Andaime</h3>
+        <label>Largura (m):</label> <input type="number" id="andaime_L" step="0.01" value="0">
+        <label>Comprimento (m):</label> <input type="number" id="andaime_C" step="0.01" value="0">
+        <label>Altura (m):</label> <input type="number" id="andaime_A" step="0.01" value="0">
+        <label>Quantidade de Andaimes:</label> <input type="number" id="andaime_Qtd" value="1">
+    </div>
+
+    <div class="section">
+        <h3>Forração</h3>
+        <label>Forração Convencional?</label>
+        <select id="forracao_conv" onchange="toggleForracao()">
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+        <div id="forracao_extra" style="display:none;">
+            <label>Largura Forração (m):</label> <input type="number" id="for_L" step="0.01" value="0">
+            <label>Comprimento Forração (m):</label> <input type="number" id="for_C" step="0.01" value="0">
+        </div>
+        <label>Quantidade de Forração:</label> <input type="number" id="for_qtd" value="0">
+    </div>
+
+    <div class="section">
+        <h3>Escada</h3>
+        <label>Escada Convencional?</label>
+        <select id="escada_conv" onchange="toggleEscada()">
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+        <div id="escada_extra" style="display:none;">
+            <label>Largura Escada (m):</label> <input type="number" id="esc_L" step="0.01" value="0">
+            <label>Comprimento Escada (m):</label> <input type="number" id="esc_C" step="0.01" value="0">
+            <label>Altura Escada (m):</label> <input type="number" id="esc_A" step="0.01" value="0">
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Guarda-Corpo</h3>
+        <label>Possui Guarda-Corpo?</label>
+        <select id="tem_gc" onchange="toggleGC()">
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+        </select>
+        <div id="gc_extra" style="display:none;">
+            <label>Comprimento L:</label> <input type="number" id="gc_L" step="0.01" value="0">
+            <label>Comprimento C:</label> <input type="number" id="gc_C" step="0.01" value="0">
+            <label>Quantidade GC:</label> <input type="number" id="gc_qtd" value="0">
+        </div>
+    </div>
+
+    <button onclick="calcular()">Calcular Volume e Medidas</button>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+    function toggleForracao() {
+        document.getElementById('forracao_extra').style.display = 
+            document.getElementById('forracao_conv').value === 'Não' ? 'block' : 'none';
+    }
+    function toggleEscada() {
+        document.getElementById('escada_extra').style.display = 
+            document.getElementById('escada_conv').value === 'Não' ? 'block' : 'none';
+    }
+    function toggleGC() {
+        document.getElementById('gc_extra').style.display = 
+            document.getElementById('tem_gc').value === 'Sim' ? 'block' : 'none';
+    }
+
+    function calcular() {
+        // Inputs principais
+        const aL = parseFloat(document.getElementById('andaime_L').value);
+        const aC = parseFloat(document.getElementById('andaime_C').value);
+        const aA = parseFloat(document.getElementById('andaime_A').value);
+        const aQtd = parseFloat(document.getElementById('andaime_Qtd').value);
+
+        // Lógica da Escada
+        let volumeEscada = 0;
+        if (document.getElementById('escada_conv').value === 'Sim') {
+            volumeEscada = (0.75 * 0.75 * aA);
+        } else {
+            const eL = parseFloat(document.getElementById('esc_L').value);
+            const eC = parseFloat(document.getElementById('esc_C').value);
+            const eA = parseFloat(document.getElementById('esc_A').value);
+            volumeEscada = eL * eC * eA;
+        }
+
+        // Volume Total
+        const volumeTotal = (aL * aC * aA * aQtd) + volumeEscada;
+
+        // Lógica da Forração
+        let medidaForracao = 0;
+        const fQtd = parseFloat(document.getElementById('for_qtd').value);
+        if (document.getElementById('forracao_conv').value === 'Sim') {
+            medidaForracao = (aL - 0.20) * (aC + 0.40) * fQtd;
+        } else {
+            const fL = parseFloat(document.getElementById('for_L').value);
+            const fC = parseFloat(document.getElementById('for_C').value);
+            medidaForracao = fL * fC * fQtd;
+        }
+
+        // Guarda-Corpo
+        let infoGC = "Não possui.";
+        if (document.getElementById('tem_gc').value === 'Sim') {
+            const gcL = parseFloat(document.getElementById('gc_L').value);
+            const gcC = parseFloat(document.getElementById('gc_C').value);
+            const gcQ = parseFloat(document.getElementById('gc_qtd').value);
+            infoGC = (gcL * gcC * gcQ).toFixed(2) + " m²";
+        }
+
+        // Exibir Resultado
+        const resDiv = document.getElementById('resultado');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `
+            <strong>Resultado:</strong><br>
+            - Volume Total do Andaime: ${volumeTotal.toFixed(2)} m³<br>
+            - Volume da Escada: ${volumeEscada.toFixed(2)} m³<br>
+            - Medida da Forração: ${medidaForracao.toFixed(2)} m²<br>
+            - Guarda-Corpo: ${infoGC}
+        `;
+    }
+</script>
+
+</body>
+</html>
